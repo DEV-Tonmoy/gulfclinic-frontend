@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Search, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Search } from 'lucide-react';
 import api from '../api/axios';
 
 interface Appointment {
@@ -18,7 +18,6 @@ const AppointmentList = () => {
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      // Using your backend's search query param
       const response = await api.get(`/admin/appointments?search=${search}`);
       setAppointments(response.data.data);
     } catch (error) {
@@ -29,7 +28,6 @@ const AppointmentList = () => {
   };
 
   useEffect(() => {
-    // Debounce search or just fetch on load
     fetchAppointments();
   }, [search]);
 

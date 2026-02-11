@@ -11,18 +11,27 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevents the browser from reloading the page
+    console.log("Login process started for:", email);
+    
     setLoading(true);
     setError('');
 
     try {
-      // Calling your existing POST /admin/login endpoint
-      await api.post('/admin/login', { email, password });
+      const response = await api.post('/admin/login', { email, password });
+      console.log("Login Success:", response.data);
+      
       // If successful, redirect to the dashboard
       navigate('/dashboard');
     } catch (err: any) {
-      // This catches 401 (Wrong pass) or 429 (Rate limited)
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      console.error("Login Catch Block Error:", err);
+      
+      // If there's no response (CORS or Network error), err.response will be undefined
+      if (!err.response) {
+        setError('Connection error: The backend might be blocking this request (CORS) or is offline.');
+      } else {
+        setError(err.response?.data?.message || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

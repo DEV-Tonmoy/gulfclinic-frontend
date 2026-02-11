@@ -13,15 +13,18 @@ export const useAuth = () => {
 
   const checkAuth = useCallback(async () => {
     try {
+      // We use a specific profile/me endpoint instead of 'stats' for clarity
+      // but for now, we'll keep your endpoint to avoid backend changes
       const response = await api.get('/admin/stats');
+      
       if (response.data && response.data.admin) {
         setAdmin(response.data.admin);
       } else {
-        // Fallback if stats returns but no admin object
-        setAdmin({ id: 'unknown', email: '', role: 'ADMIN' });
+        // If the backend returns success but no admin data, we shouldn't assume logged in
+        setAdmin(null);
       }
     } catch (error) {
-      console.error("Authentication check failed. Redirecting to login.");
+      // This happens if the cookie is missing or expired (401/403)
       setAdmin(null);
     } finally {
       setLoading(false);

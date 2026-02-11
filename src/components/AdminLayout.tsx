@@ -17,7 +17,6 @@ const AdminLayout = () => {
       navigate('/login');
     } catch (error) {
       console.error("Logout failed", error);
-      // Even if API fails, clear local view
       navigate('/login');
     }
   };
@@ -55,7 +54,6 @@ const AdminLayout = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-end px-8">
           <div className="flex items-center gap-2 text-slate-600">
             <div className="bg-clinic-100 p-2 rounded-full">
@@ -65,7 +63,6 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        {/* Dynamic Page Content */}
         <section className="flex-1 overflow-y-auto p-8">
           <Outlet />
         </section>

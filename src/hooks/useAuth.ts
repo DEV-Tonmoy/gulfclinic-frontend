@@ -1,19 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../api/axios';
 
-interface Admin {
-  id: string;
-  email: string;
-  role: 'ADMIN' | 'SUPER_ADMIN';
-}
-
 export const useAuth = () => {
-  const [admin, setAdmin] = useState<Admin | null>(null);
+  const [admin, setAdmin] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const isInitialMount = useRef(true);
 
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('admin_token');
-    
     if (!token) {
       setAdmin(null);
       setLoading(false);
@@ -21,39 +15,35 @@ export const useAuth = () => {
     }
 
     try {
-      // TEMPORARY FIX: If we have a token, set a temporary admin state 
-      // so the UI lets us in while the API check happens.
-      if (!admin) {
-        setAdmin({ id: 'temp', email: '', role: 'ADMIN' }); 
-      }
+      // If we already have an admin state, don't show the loading screen again
+      if (!isInitialMount.current) setLoading(false);
 
-      // Change this to a simpler health check or profile endpoint if /stats is broken
-      const response = await api.get('/admin/settings'); 
+      // Use a more reliable endpoint for checking auth status
+      const response = await api.get('/admin/me'); 
       
-      if (response.data) {
-        setAdmin(response.data.admin || response.data);
+      if (response.data && response.data.admin) {
+        setAdmin(response.data.admin);
       }
-    } catch (error) {
-      console.error("Auth check failed:", (error as any).message);
-      // Only remove token if it's a 401 Unauthorized error
-      if ((error as any).response?.status === 401) {
+    } catch (error: any) {
+      // ONLY logout if the server explicitly says the token is invalid (401)
+      if (error.response?.status === 401) {
         localStorage.removeItem('admin_token');
         setAdmin(null);
       }
+      console.error("Auth sync error:", error.message);
     } finally {
       setLoading(false);
+      isInitialMount.current = false;
     }
-  }, [admin]);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('admin_token');
-    setAdmin(null);
-    window.location.href = '/login';
   }, []);
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  return { admin, loading, setAdmin, checkAuth, logout };
+  return { admin, loading, logout: () => {
+    localStorage.removeItem('admin_token');
+    setAdmin(null);
+    window.location.href = '/login';
+  }};
 };

@@ -12,28 +12,44 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
+    // If there is no token at all, don't even bother calling the API
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      setAdmin(null);
+      setLoading(false);
+      return;
+    }
+
     try {
-      // We use a specific profile/me endpoint instead of 'stats' for clarity
-      // but for now, we'll keep your endpoint to avoid backend changes
+      setLoading(true);
+      // We use /admin/me or /admin/stats to verify the token is still valid
       const response = await api.get('/admin/stats');
       
-      if (response.data && response.data.admin) {
+      if (response.data && response.data.success) {
+        // Map the admin data from the response
         setAdmin(response.data.admin);
       } else {
-        // If the backend returns success but no admin data, we shouldn't assume logged in
+        // If API returns success: false, clear the local token
+        localStorage.removeItem('admin_token');
         setAdmin(null);
       }
     } catch (error) {
-      // This happens if the cookie is missing or expired (401/403)
+      console.error("Auth check failed:", (error as any).message);
+      localStorage.removeItem('admin_token');
       setAdmin(null);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('admin_token');
+    setAdmin(null);
+  }, []);
+
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  return { admin, loading, setAdmin, checkAuth };
+  return { admin, loading, setAdmin, checkAuth, logout };
 };

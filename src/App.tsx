@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import AppointmentList from './pages/AppointmentList';
+import SettingsPage from './pages/SettingsPage';
+import DashboardHome from './pages/DashboardHome'; // Add this import
 import AdminLayout from './components/AdminLayout';
 import { useAuth } from './hooks/useAuth';
 
@@ -28,17 +30,16 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Login */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Protected Admin Routes */}
+        {/* Protected Admin Shell */}
         <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-          <Route path="/dashboard" element={
-            <div className="p-6">
-              <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-              <p className="text-gray-600">Welcome to your clinic overview.</p>
-            </div>
-          } />
+          {/* Use the new DashboardHome component here */}
+          <Route path="/dashboard" element={<DashboardHome />} />
+          
           <Route path="/appointments" element={<AppointmentList />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
 
         {/* Default Redirect */}

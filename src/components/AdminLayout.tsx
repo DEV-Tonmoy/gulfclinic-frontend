@@ -1,71 +1,69 @@
-import { Outlet, useNavigate, Link } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  ClipboardList, 
-  LogOut, 
-  Stethoscope,
-  User
-} from 'lucide-react';
-import api from '../api/axios';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Calendar, Settings, LogOut, Clinic } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 const AdminLayout = () => {
+  const { admin, logout } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      await api.post('/admin/logout');
-      navigate('/login');
-    } catch (error) {
-      console.error("Logout failed", error);
-      navigate('/login');
-    }
+  const menuItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+    { icon: Calendar, label: 'Appointments', path: '/appointments' },
+    { icon: Settings, label: 'Clinic Settings', path: '/settings' },
+  ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-clinic-900 text-white flex flex-col">
-        <div className="p-6 flex items-center gap-3 border-b border-clinic-700">
-          <Stethoscope className="text-clinic-100" size={24} />
-          <span className="font-bold text-lg tracking-tight">Gulf Clinic</span>
+      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
+        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
+          <div className="w-8 h-8 bg-clinic-600 rounded-lg flex items-center justify-center text-white font-bold">G</div>
+          <span className="font-bold text-slate-800 text-lg">Gulf Clinic</span>
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <Link to="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-clinic-700 transition">
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </Link>
-          <Link to="/appointments" className="flex items-center gap-3 p-3 rounded-lg hover:bg-clinic-700 transition">
-            <ClipboardList size={20} />
-            <span>Appointments</span>
-          </Link>
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
+                location.pathname === item.path
+                  ? 'bg-clinic-50 text-clinic-600'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+              }`}
+            >
+              <item.icon size={20} />
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
-        <div className="p-4 border-t border-clinic-700">
+        <div className="p-4 border-t border-slate-100">
+          <div className="px-4 py-3 mb-2">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Logged in as</p>
+            <p className="text-sm font-semibold text-slate-700 truncate">{admin?.email}</p>
+          </div>
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-red-600 transition text-red-100"
+            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all"
           >
             <LogOut size={20} />
-            <span>Logout</span>
+            Logout
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-end px-8">
-          <div className="flex items-center gap-2 text-slate-600">
-            <div className="bg-clinic-100 p-2 rounded-full">
-              <User size={18} className="text-clinic-600" />
-            </div>
-            <span className="text-sm font-medium">Admin Panel</span>
-          </div>
-        </header>
-
-        <section className="flex-1 overflow-y-auto p-8">
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-8">
           <Outlet />
-        </section>
+        </div>
       </main>
     </div>
   );

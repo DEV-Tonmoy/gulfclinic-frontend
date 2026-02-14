@@ -4,15 +4,15 @@ import axios from 'axios';
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 /**
- * Updated BASE_URL:
- * Removed the "3" from the fallback to match your confirmed Render URL:
- * https://gulf-clinic-backend.onrender.com
+ * FIXED BASE_URL:
+ * We are removing the environment variable fallback to stop the "3" URL from appearing.
+ * This forces the frontend to use the correct dashed URL on Render.
  */
 const BASE_URL = isLocalhost 
   ? 'http://localhost:4000' 
-  : (import.meta.env.VITE_API_URL || 'https://gulf-clinic-backend.onrender.com');
+  : 'https://gulf-clinic-backend.onrender.com';
 
-console.log("Current API Base URL:", BASE_URL); // Crucial for verifying the fix in the browser console
+console.log("Current API Base URL:", BASE_URL); 
 
 const API = axios.create({
   baseURL: BASE_URL,
@@ -36,7 +36,6 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // If the backend returns 401 (Unauthorized), clear the token and kick to login
       localStorage.removeItem('admin_token');
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';

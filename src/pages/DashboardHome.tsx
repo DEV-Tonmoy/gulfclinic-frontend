@@ -17,11 +17,10 @@ const DashboardHome = () => {
     const fetchStats = async () => {
       try {
         const response = await api.get('/admin/stats');
-        // Check both response.data.success and nested data structure
+        // Updated to strictly follow the backend response structure { success: true, stats: {...} }
         if (response.data && response.data.success) {
           setStats(response.data.stats);
         } else {
-          // Fallback if backend returns success: false
           console.warn("Backend reported failure, using default stats");
         }
       } catch (err) {
@@ -84,7 +83,7 @@ const DashboardHome = () => {
           </div>
           <div className="px-4 py-2 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 flex items-center gap-2 shadow-sm">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            OPERATIONAL
+            {stats && stats.total > 0 ? 'OPERATIONAL' : 'WAITING FOR DATA'}
           </div>
         </div>
       </div>

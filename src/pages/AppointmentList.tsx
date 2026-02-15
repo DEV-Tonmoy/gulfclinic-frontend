@@ -20,10 +20,12 @@ const AppointmentList = () => {
   const [selectedApt, setSelectedApt] = useState<Appointment | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Helper to check for Super Admin role safely
+  const isSuperAdmin = admin?.role?.toUpperCase() === 'SUPER_ADMIN';
+
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      // Path: /api/appointments + /list
       const response = await api.get(`/api/appointments/list?search=${search}`);
       if (response.data && response.data.data) {
         setAppointments(response.data.data);
@@ -43,12 +45,13 @@ const AppointmentList = () => {
     if (!selectedApt) return;
     try {
       setIsUpdating(true);
-      // Fixed path: /api/appointments + /status endpoint logic
+      // Calls the new PATCH route we added to the backend
       await api.patch(`/api/appointments/${selectedApt.id}/status`, { status: newStatus });
       setAppointments(prev => prev.map(a => a.id === selectedApt.id ? { ...a, status: newStatus } : a));
       setSelectedApt(prev => prev ? { ...prev, status: newStatus } : null);
     } catch (error) {
-      alert("Failed to update status.");
+      console.error("Update error:", error);
+      alert("Failed to update status. Check backend logs.");
     } finally {
       setIsUpdating(false);
     }
@@ -58,7 +61,6 @@ const AppointmentList = () => {
     if (!selectedApt || !window.confirm("Delete this appointment?")) return;
     try {
       setIsUpdating(true);
-      // Fixed path: /api/appointments + id
       await api.delete(`/api/appointments/${selectedApt.id}`);
       setAppointments(prev => prev.filter(a => a.id !== selectedApt.id));
       setSelectedApt(null);
@@ -148,16 +150,18 @@ const AppointmentList = () => {
         </table>
       </div>
 
+      {/* Slide-over Details Panel */}
       {selectedApt && (
         <>
           <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setSelectedApt(null)} />
-          <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 flex flex-col">
+          <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800">Appointment Details</h2>
               <button onClick={() => setSelectedApt(null)} className="p-2 hover:bg-slate-100 rounded-full">
                 <X size={20} className="text-slate-500" />
               </button>
             </div>
+            
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -208,17 +212,20 @@ const AppointmentList = () => {
             </div>
 
             <div className="p-6 border-t border-slate-100 bg-slate-50">
-              {admin?.role === 'SUPER_ADMIN' ? (
+              {isSuperAdmin ? (
                 <button
                   onClick={handleDelete}
                   disabled={isUpdating}
                   className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl font-bold transition-all border border-red-200"
                 >
                   <Trash2 size={18} />
-                  Delete Appointment
+                  {isUpdating ? 'Processing...' : 'Delete Appointment'}
                 </button>
               ) : (
-                <p className="text-center text-xs text-slate-400 font-medium">Deletion restricted to Super Admin</p>
+                <div className="text-center p-3 bg-slate-100 rounded-lg border border-slate-200">
+                   <p className="text-xs text-slate-500 font-semibold uppercase tracking-tight">View-Only Mode</p>
+                   <p className="text-[10px] text-slate-400 mt-1">Deletion is restricted to Super Admin accounts.</p>
+                </div>
               )}
             </div>
           </div>

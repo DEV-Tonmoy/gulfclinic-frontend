@@ -16,15 +16,16 @@ const DashboardHome = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await api.get('/admin/stats');
-        // Updated to strictly follow the backend response structure { success: true, stats: {...} }
+        // Aligned with app.ts route prefix: /api/appointments + /stats
+        const response = await api.get('/api/appointments/stats');
+        
         if (response.data && response.data.success) {
           setStats(response.data.stats);
         } else {
-          console.warn("Backend reported failure, using default stats");
+          console.warn("Backend reported failure or unauthorized");
         }
       } catch (err) {
-        console.error("Failed to load dashboard stats - Backend route may be missing");
+        console.error("Failed to load dashboard stats - Check if Admin is logged in");
       } finally {
         setLoading(false);
       }

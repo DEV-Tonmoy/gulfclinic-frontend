@@ -8,7 +8,7 @@ interface Appointment {
   fullName: string;
   phone: string;
   status: 'NEW' | 'CONTACTED' | 'CLOSED';
-  isAi: boolean; // Added this to match our new backend logic
+  isAi: boolean;
   createdAt: string;
 }
 
@@ -23,8 +23,9 @@ const AppointmentList = () => {
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/admin/appointments?search=${search}`);
-      if (response.data && response.data.success) {
+      // Path: /api/appointments + /list
+      const response = await api.get(`/api/appointments/list?search=${search}`);
+      if (response.data && response.data.data) {
         setAppointments(response.data.data);
       }
     } catch (error) {
@@ -42,7 +43,8 @@ const AppointmentList = () => {
     if (!selectedApt) return;
     try {
       setIsUpdating(true);
-      await api.patch(`/admin/appointments/${selectedApt.id}`, { status: newStatus });
+      // Fixed path: /api/appointments + /status endpoint logic
+      await api.patch(`/api/appointments/${selectedApt.id}/status`, { status: newStatus });
       setAppointments(prev => prev.map(a => a.id === selectedApt.id ? { ...a, status: newStatus } : a));
       setSelectedApt(prev => prev ? { ...prev, status: newStatus } : null);
     } catch (error) {
@@ -56,7 +58,8 @@ const AppointmentList = () => {
     if (!selectedApt || !window.confirm("Delete this appointment?")) return;
     try {
       setIsUpdating(true);
-      await api.delete(`/admin/appointments/${selectedApt.id}`);
+      // Fixed path: /api/appointments + id
+      await api.delete(`/api/appointments/${selectedApt.id}`);
       setAppointments(prev => prev.filter(a => a.id !== selectedApt.id));
       setSelectedApt(null);
     } catch (error) {
@@ -84,7 +87,7 @@ const AppointmentList = () => {
           <input 
             type="text"
             placeholder="Search patients..."
-            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-clinic-600 outline-none"
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -133,7 +136,7 @@ const AppointmentList = () => {
                   <td className="px-6 py-4 text-right">
                     <button 
                       onClick={() => setSelectedApt(apt)}
-                      className="text-clinic-600 hover:text-clinic-800 text-sm font-semibold transition"
+                      className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition"
                     >
                       View Details
                     </button>
@@ -174,7 +177,7 @@ const AppointmentList = () => {
                     <p className="text-slate-800 font-semibold">{selectedApt.fullName}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Phone size={14} className="text-clinic-600" />
+                    <Phone size={14} className="text-blue-600" />
                     <p className="text-slate-700 font-mono">{selectedApt.phone}</p>
                   </div>
                 </div>

@@ -20,8 +20,8 @@ const AppointmentList = () => {
   const [selectedApt, setSelectedApt] = useState<Appointment | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Helper to check for Super Admin role safely
-  const isSuperAdmin = admin?.role?.toUpperCase() === 'SUPER_ADMIN';
+  // FIX: Make the role check case-insensitive and check for underscores
+  const isSuperAdmin = admin?.role?.toString().toUpperCase() === 'SUPER_ADMIN';
 
   const fetchAppointments = async () => {
     try {
@@ -45,7 +45,6 @@ const AppointmentList = () => {
     if (!selectedApt) return;
     try {
       setIsUpdating(true);
-      // Calls the new PATCH route we added to the backend
       await api.patch(`/api/appointments/${selectedApt.id}/status`, { status: newStatus });
       setAppointments(prev => prev.map(a => a.id === selectedApt.id ? { ...a, status: newStatus } : a));
       setSelectedApt(prev => prev ? { ...prev, status: newStatus } : null);
@@ -150,7 +149,6 @@ const AppointmentList = () => {
         </table>
       </div>
 
-      {/* Slide-over Details Panel */}
       {selectedApt && (
         <>
           <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setSelectedApt(null)} />
@@ -216,7 +214,7 @@ const AppointmentList = () => {
                 <button
                   onClick={handleDelete}
                   disabled={isUpdating}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl font-bold transition-all border border-red-200"
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl font-bold transition-all border border-red-200 shadow-sm"
                 >
                   <Trash2 size={18} />
                   {isUpdating ? 'Processing...' : 'Delete Appointment'}
@@ -224,7 +222,10 @@ const AppointmentList = () => {
               ) : (
                 <div className="text-center p-3 bg-slate-100 rounded-lg border border-slate-200">
                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-tight">View-Only Mode</p>
-                   <p className="text-[10px] text-slate-400 mt-1">Deletion is restricted to Super Admin accounts.</p>
+                   <p className="text-[10px] text-slate-400 mt-1">
+                      Deletion is restricted to Super Admin. 
+                      Your role is: <span className="font-bold text-slate-600">{admin?.role || 'Unknown'}</span>
+                   </p>
                 </div>
               )}
             </div>

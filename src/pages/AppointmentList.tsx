@@ -13,19 +13,20 @@ interface Appointment {
 }
 
 const AppointmentList = () => {
-  const { admin } = useAuth();
+  const { admin, loading: authLoading } = useAuth(); // Added authLoading check
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedApt, setSelectedApt] = useState<Appointment | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // FIX: Make the role check case-insensitive and check for underscores
+  // Normalized Role Check
   const isSuperAdmin = admin?.role?.toString().toUpperCase() === 'SUPER_ADMIN';
 
   const fetchAppointments = async () => {
     try {
       setLoading(true);
+      // Ensure this matches your app.use("/api/appointments", ...) in app.ts
       const response = await api.get(`/api/appointments/list?search=${search}`);
       if (response.data && response.data.data) {
         setAppointments(response.data.data);
@@ -50,7 +51,7 @@ const AppointmentList = () => {
       setSelectedApt(prev => prev ? { ...prev, status: newStatus } : null);
     } catch (error) {
       console.error("Update error:", error);
-      alert("Failed to update status. Check backend logs.");
+      alert("Failed to update status.");
     } finally {
       setIsUpdating(false);
     }
@@ -210,23 +211,26 @@ const AppointmentList = () => {
             </div>
 
             <div className="p-6 border-t border-slate-100 bg-slate-50">
-              {isSuperAdmin ? (
-                <button
-                  onClick={handleDelete}
-                  disabled={isUpdating}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl font-bold transition-all border border-red-200 shadow-sm"
-                >
-                  <Trash2 size={18} />
-                  {isUpdating ? 'Processing...' : 'Delete Appointment'}
-                </button>
-              ) : (
-                <div className="text-center p-3 bg-slate-100 rounded-lg border border-slate-200">
-                   <p className="text-xs text-slate-500 font-semibold uppercase tracking-tight">View-Only Mode</p>
-                   <p className="text-[10px] text-slate-400 mt-1">
-                      Deletion is restricted to Super Admin. 
-                      Your role is: <span className="font-bold text-slate-600">{admin?.role || 'Unknown'}</span>
-                   </p>
-                </div>
+              {/* Show nothing or a small loader if auth is still verifying */}
+              {!authLoading && (
+                isSuperAdmin ? (
+                  <button
+                    onClick={handleDelete}
+                    disabled={isUpdating}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl font-bold transition-all border border-red-200 shadow-sm"
+                  >
+                    <Trash2 size={18} />
+                    {isUpdating ? 'Processing...' : 'Delete Appointment'}
+                  </button>
+                ) : (
+                  <div className="text-center p-3 bg-slate-100 rounded-lg border border-slate-200">
+                     <p className="text-xs text-slate-500 font-semibold uppercase tracking-tight">View-Only Mode</p>
+                     <p className="text-[10px] text-slate-400 mt-1">
+                        Deletion is restricted to Super Admin. 
+                        Your role is: <span className="font-bold text-slate-600">{admin?.role || 'Unknown'}</span>
+                     </p>
+                  </div>
+                )
               )}
             </div>
           </div>

@@ -24,19 +24,18 @@ export const useAuth = () => {
     try {
       if (!isInitialMount.current) setLoading(false);
 
-      // FIX: Use the specific "me" endpoint that returns the logged-in admin's data
-      const response = await api.get('/api/admin/me'); 
+      // FIXED: Removed /api prefix to match Backend app.use("/admin", adminAuthRoutes)
+      const response = await api.get('/admin/me'); 
       
       if (response.data && response.data.success) {
-        // Ensure we are grabbing the admin object from the response
         setAdmin(response.data.admin);
       } else if (response.data && !response.data.success) {
-        // If the backend returns success: false, treat as unauthorized
         throw new Error("Unauthorized");
       }
     } catch (error: any) {
       console.error("Auth verification failed:", error.message);
       
+      // If backend rejects the token, clear it and redirect
       if (error.response?.status === 401) {
         localStorage.removeItem('admin_token');
         setAdmin(null);

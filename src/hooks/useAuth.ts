@@ -22,21 +22,21 @@ export const useAuth = () => {
     }
 
     try {
-      // If we already have a session, don't trigger the global loading spinner
       if (!isInitialMount.current) setLoading(false);
 
-      // Attempt to verify the session with the backend
-      // Using /admin/settings or /admin/me as a verification endpoint
-      const response = await api.get('/admin/settings'); 
+      // FIX: Use the specific "me" endpoint that returns the logged-in admin's data
+      const response = await api.get('/api/admin/me'); 
       
-      if (response.data) {
-        // Support both response formats (direct admin object or nested)
-        setAdmin(response.data.admin || response.data);
+      if (response.data && response.data.success) {
+        // Ensure we are grabbing the admin object from the response
+        setAdmin(response.data.admin);
+      } else if (response.data && !response.data.success) {
+        // If the backend returns success: false, treat as unauthorized
+        throw new Error("Unauthorized");
       }
     } catch (error: any) {
       console.error("Auth verification failed:", error.message);
       
-      // Only wipe the session if the backend explicitly says the token is dead
       if (error.response?.status === 401) {
         localStorage.removeItem('admin_token');
         setAdmin(null);
@@ -57,6 +57,5 @@ export const useAuth = () => {
     checkAuth();
   }, [checkAuth]);
 
-  // We return checkAuth so LoginPage.tsx can trigger a refresh after login
   return { admin, loading, setAdmin, checkAuth, logout };
 };

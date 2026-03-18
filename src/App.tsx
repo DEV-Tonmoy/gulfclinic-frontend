@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   // Only redirect if we are finished loading AND there is no admin found
   if (!loading && !admin) {
-    console.log("[AUTH] No session found, redirecting to login");
+    
     return <Navigate to="/login" replace />;
   }
 

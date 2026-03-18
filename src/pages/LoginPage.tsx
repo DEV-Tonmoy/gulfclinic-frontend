@@ -14,33 +14,27 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-    try {
-      console.log("Attempting login for:", email);
-      const response = await api.post('/admin/login', { email, password });
-      
-      if (response.data.token) {
-        localStorage.setItem('admin_token', response.data.token);
-        
-        // Refresh the auth state so the App knows we are logged in
-        await checkAuth(); 
-        
-        navigate('/dashboard');
-      }
-    } catch (err: any) {
-      console.error("Login Error:", err);
-      if (err.code === 'ERR_NETWORK') {
-        setError('Network Error: Backend might be sleeping or CORS is blocking.');
-      } else {
-        setError(err.response?.data?.message || 'Invalid credentials or Server Error.');
-      }
-    } finally {
-      setLoading(false);
+  try {
+    await api.post('/admin/login', { email, password });
+await new Promise(resolve => setTimeout(resolve, 300));
+await checkAuth();
+navigate('/dashboard');
+  } catch (err: any) {
+    if (err.message?.includes('waking up')) {
+      setError('Service is starting up, please try again in 30 seconds.');
+    } else if (err.code === 'ERR_NETWORK') {
+      setError('Network Error: Backend might be sleeping or CORS is blocking.');
+    } else {
+      setError(err.response?.data?.message || 'Invalid credentials or server error.');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">

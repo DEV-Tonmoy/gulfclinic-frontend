@@ -20,7 +20,7 @@ const LoginPage = () => {
 
   try {
     await api.post('/admin/login', { email, password });
-await new Promise(resolve => setTimeout(resolve, 300));
+
 await checkAuth();
 navigate('/dashboard');
   } catch (err: any) {

@@ -29,7 +29,7 @@ const AdminLayout = () => {
           ))}
         </nav>
         <div className="p-4 border-t border-slate-100">
-           <button onClick={() => { logout(); navigate('/login'); }} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl">
+           <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl">
             <LogOut size={20} />
             Logout
           </button>

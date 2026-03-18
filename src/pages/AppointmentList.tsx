@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Search, X, Trash2, Phone, User as UserIcon, AlertCircle, Bot } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../hooks/useAuth';
@@ -32,15 +32,18 @@ const AppointmentList = () => {
         setAppointments(response.data.data);
       }
     } catch (error) {
-      console.error("Failed to fetch appointments:", error);
+      
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+  const timer = setTimeout(() => {
     fetchAppointments();
-  }, [search]);
+  }, 400);
+  return () => clearTimeout(timer);
+}, [search]);
 
   const handleUpdateStatus = async (newStatus: Appointment['status']) => {
     if (!selectedApt) return;
@@ -50,7 +53,7 @@ const AppointmentList = () => {
       setAppointments(prev => prev.map(a => a.id === selectedApt.id ? { ...a, status: newStatus } : a));
       setSelectedApt(prev => prev ? { ...prev, status: newStatus } : null);
     } catch (error) {
-      console.error("Update error:", error);
+      
       alert("Failed to update status.");
     } finally {
       setIsUpdating(false);

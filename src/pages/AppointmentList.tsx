@@ -9,6 +9,7 @@ interface Appointment {
   phone: string;
   status: 'NEW' | 'CONTACTED' | 'CLOSED';
   isAi: boolean;
+  source?: string | null;
   createdAt: string;
 }
 
@@ -32,18 +33,18 @@ const AppointmentList = () => {
         setAppointments(response.data.data);
       }
     } catch (error) {
-      
+
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-  const timer = setTimeout(() => {
-    fetchAppointments();
-  }, 400);
-  return () => clearTimeout(timer);
-}, [search]);
+    const timer = setTimeout(() => {
+      fetchAppointments();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const handleUpdateStatus = async (newStatus: Appointment['status']) => {
     if (!selectedApt) return;
@@ -53,7 +54,7 @@ const AppointmentList = () => {
       setAppointments(prev => prev.map(a => a.id === selectedApt.id ? { ...a, status: newStatus } : a));
       setSelectedApt(prev => prev ? { ...prev, status: newStatus } : null);
     } catch (error) {
-      
+
       alert("Failed to update status.");
     } finally {
       setIsUpdating(false);
@@ -89,7 +90,7 @@ const AppointmentList = () => {
         <h1 className="text-2xl font-bold text-slate-800">Appointment Requests</h1>
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input 
+          <input
             type="text"
             placeholder="Search patients..."
             className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
@@ -122,7 +123,11 @@ const AppointmentList = () => {
                   <td className="px-6 py-4 font-medium text-slate-800">{apt.fullName}</td>
                   <td className="px-6 py-4 text-slate-600 font-mono text-sm">{apt.phone}</td>
                   <td className="px-6 py-4">
-                    {apt.isAi ? (
+                    {apt.source === 'WEBSITE' ? (
+                      <span className="inline-flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-100">
+                        🌐 WEBSITE
+                      </span>
+                    ) : apt.source === 'ai_chatbot' || apt.isAi ? (
                       <span className="inline-flex items-center gap-1 text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-100">
                         <Bot size={12} /> AI AGENT
                       </span>
@@ -139,7 +144,7 @@ const AppointmentList = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button 
+                    <button
                       onClick={() => setSelectedApt(apt)}
                       className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition"
                     >
@@ -163,17 +168,20 @@ const AppointmentList = () => {
                 <X size={20} className="text-slate-500" />
               </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                   <div className="flex items-center gap-3 text-slate-500">
+                  <div className="flex items-center gap-3 text-slate-500">
                     <UserIcon size={18} />
                     <span className="text-sm font-medium uppercase tracking-wider">Patient Information</span>
                   </div>
-                  {selectedApt.isAi && (
-                    <span className="flex items-center gap-1.5 text-purple-600 bg-purple-50 px-3 py-1 rounded-full text-xs font-bold border border-purple-200">
-                      <Bot size={14} /> Booked via AI
+                  {(selectedApt.source === 'WEBSITE' || selectedApt.source === 'ai_chatbot' || selectedApt.isAi) && (
+                    <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${selectedApt.source === 'WEBSITE'
+                        ? 'text-blue-600 bg-blue-50 border-blue-200'
+                        : 'text-purple-600 bg-purple-50 border-purple-200'
+                      }`}>
+                      {selectedApt.source === 'WEBSITE' ? '🌐 Website Form' : <><Bot size={14} /> Booked via AI</>}
                     </span>
                   )}
                 </div>
@@ -201,8 +209,8 @@ const AppointmentList = () => {
                       disabled={isUpdating}
                       onClick={() => handleUpdateStatus(status)}
                       className={`flex items-center justify-between p-3 rounded-lg border text-sm font-bold transition
-                        ${selectedApt.status === status 
-                          ? `${getStatusStyle(status)} border-current ring-1 ring-current` 
+                        ${selectedApt.status === status
+                          ? `${getStatusStyle(status)} border-current ring-1 ring-current`
                           : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}
                       `}
                     >
@@ -227,11 +235,11 @@ const AppointmentList = () => {
                   </button>
                 ) : (
                   <div className="text-center p-3 bg-slate-100 rounded-lg border border-slate-200">
-                     <p className="text-xs text-slate-500 font-semibold uppercase tracking-tight">View-Only Mode</p>
-                     <p className="text-[10px] text-slate-400 mt-1">
-                        Deletion is restricted to Super Admin. 
-                        Your role is: <span className="font-bold text-slate-600">{admin?.role || 'Unknown'}</span>
-                     </p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-tight">View-Only Mode</p>
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Deletion is restricted to Super Admin.
+                      Your role is: <span className="font-bold text-slate-600">{admin?.role || 'Unknown'}</span>
+                    </p>
                   </div>
                 )
               )}

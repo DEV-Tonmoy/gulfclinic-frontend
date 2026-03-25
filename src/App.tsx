@@ -1,4 +1,4 @@
-// ADD THIS with other imports
+import AdminManagementPage from './pages/AdminManagementPage';
 import DoctorsPage from './pages/DoctorsPage';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
@@ -48,6 +48,7 @@ function App() {
           <Route path="/settings" element={<SettingsPage />} />
 
           <Route path="/doctors" element={<DoctorsPage />} />
+          <Route path="/admin-management" element={<AdminManagementPage />} />
 
           {/* Internal redirect from base protected path to dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

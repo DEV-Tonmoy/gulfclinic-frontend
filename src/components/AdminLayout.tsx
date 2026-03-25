@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Settings, LogOut, Activity, UserRound, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Calendar, Settings, LogOut, Activity, UserRound, Menu, X, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 const AdminLayout = () => {
@@ -12,6 +12,7 @@ const AdminLayout = () => {
     { icon: Calendar, label: 'Appointments', path: '/appointments' },
     { icon: UserRound, label: 'Doctors', path: '/doctors' },
     { icon: Settings, label: 'Clinic Settings', path: '/settings' },
+    { icon: Shield, label: 'Admin Users', path: '/admin-management' },
   ];
 
   return (
@@ -28,7 +29,7 @@ const AdminLayout = () => {
       </div>
 
       <input type="checkbox" id="mobile-menu-toggle" className="peer hidden" />
-      
+
       {/* Mobile Sidebar Overlay */}
       <label htmlFor="mobile-menu-toggle" className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden peer-checked:block md:hidden transition-opacity" />
 
@@ -45,9 +46,9 @@ const AdminLayout = () => {
         </div>
         <nav className="flex-1 p-4 space-y-2">
           {menuItems.map((item) => (
-            <Link 
-              key={item.path} 
-              to={item.path} 
+            <Link
+              key={item.path}
+              to={item.path}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${location.pathname === item.path ? 'bg-blue-50 text-blue-600 font-bold' : 'text-slate-500 hover:bg-slate-50'}`}
             >
               <item.icon size={20} />

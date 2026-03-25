@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Settings, LogOut, Activity } from 'lucide-react'; // Changed to Activity
+import { LayoutDashboard, Calendar, Settings, LogOut, Activity, UserRound } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 const AdminLayout = () => {
@@ -10,6 +10,7 @@ const AdminLayout = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: Calendar, label: 'Appointments', path: '/appointments' },
+    { icon: UserRound, label: 'Doctors', path: '/doctors' },
     { icon: Settings, label: 'Clinic Settings', path: '/settings' },
   ];
 
@@ -29,7 +30,7 @@ const AdminLayout = () => {
           ))}
         </nav>
         <div className="p-4 border-t border-slate-100">
-           <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl">
+          <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl">
             <LogOut size={20} />
             Logout
           </button>

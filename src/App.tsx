@@ -1,3 +1,5 @@
+// ADD THIS with other imports
+import DoctorsPage from './pages/DoctorsPage';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import AppointmentList from './pages/AppointmentList';
@@ -25,7 +27,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   // Only redirect if we are finished loading AND there is no admin found
   if (!loading && !admin) {
-    
+
     return <Navigate to="/login" replace />;
   }
 
@@ -44,7 +46,9 @@ function App() {
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/appointments" element={<AppointmentList />} />
           <Route path="/settings" element={<SettingsPage />} />
-          
+
+          <Route path="/doctors" element={<DoctorsPage />} />
+
           {/* Internal redirect from base protected path to dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>

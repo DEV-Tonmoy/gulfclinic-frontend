@@ -64,15 +64,15 @@ const SettingsPage = () => {
 
   return (
     <div className="max-w-5xl space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Clinic Configuration</h1>
           <p className="text-slate-500 text-sm">Manage your AI automation and integration settings.</p>
         </div>
         {!isSuperAdmin && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold shadow-sm">
-            <ShieldAlert size={16} />
-            VIEW-ONLY MODE
+          <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-bold shadow-sm uppercase tracking-wider">
+            <ShieldAlert size={14} />
+            VIEW-ONLY
           </div>
         )}
       </div>
@@ -163,9 +163,9 @@ const ToggleItem = ({ icon, label, desc, active, onToggle, disabled, color }: an
   };
 
   return (
-    <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50/50 border border-slate-100 transition-all hover:border-slate-200">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-slate-50/50 border border-slate-100 transition-all hover:border-slate-200 gap-4">
       <div className="flex items-center gap-4">
-        <div className={`p-2.5 rounded-lg ${colorMap[color] || 'bg-slate-200'}`}>
+        <div className={`p-2.5 rounded-lg shrink-0 ${colorMap[color] || 'bg-slate-200'}`}>
           {icon}
         </div>
         <div>
@@ -173,13 +173,15 @@ const ToggleItem = ({ icon, label, desc, active, onToggle, disabled, color }: an
           <p className="text-xs text-slate-500">{desc}</p>
         </div>
       </div>
-      <button 
-        onClick={onToggle}
-        disabled={disabled}
-        className={`w-12 h-6 rounded-full transition-all relative ${active ? 'bg-blue-600' : 'bg-slate-300'} ${disabled && 'opacity-50 cursor-not-allowed'}`}
-      >
-        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${active ? 'left-7' : 'left-1'}`} />
-      </button>
+      <div className="flex justify-end sm:block">
+        <button 
+          onClick={onToggle}
+          disabled={disabled}
+          className={`w-12 h-6 rounded-full transition-all relative ${active ? 'bg-blue-600' : 'bg-slate-300'} ${disabled && 'opacity-50 cursor-not-allowed'}`}
+        >
+          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${active ? 'left-7' : 'left-1'}`} />
+        </button>
+      </div>
     </div>
   );
 };

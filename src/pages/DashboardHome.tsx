@@ -35,9 +35,9 @@ const DashboardHome = () => {
 
   if (loading) {
     return (
-      <div className="p-8 space-y-8">
-        <div className="h-20 w-1/3 bg-slate-200 animate-pulse rounded-2xl" />
-        <div className="grid grid-cols-4 gap-6">
+      <div className="p-4 md:p-8 space-y-8">
+        <div className="h-10 w-1/2 md:w-1/3 bg-slate-200 animate-pulse rounded-xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1,2,3,4].map(i => <div key={i} className="h-32 bg-slate-200 animate-pulse rounded-2xl" />)}
         </div>
       </div>
@@ -52,13 +52,13 @@ const DashboardHome = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Clinic Overview</h1>
-        <p className="text-slate-500">Real-time performance of your AI booking engine.</p>
+        <p className="text-slate-500 text-sm">Real-time performance of your AI booking engine.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {cards.map((card, i) => (
           <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:border-blue-200 transition-colors">
             <div className={`${card.bg} ${card.color} p-3 rounded-xl`}>

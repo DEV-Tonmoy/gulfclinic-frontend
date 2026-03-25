@@ -86,9 +86,9 @@ const AppointmentList = () => {
 
   return (
     <div className="relative space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-slate-800">Appointment Requests</h1>
-        <div className="relative w-64">
+        <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
@@ -101,67 +101,69 @@ const AppointmentList = () => {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 border-b border-slate-200">
-            <tr>
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">Patient</th>
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">Phone</th>
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">Source</th>
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">Date</th>
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {loading ? (
-              <tr><td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">Loading...</td></tr>
-            ) : appointments.length === 0 ? (
-              <tr><td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">No appointments found.</td></tr>
-            ) : (
-              appointments.map((apt) => (
-                <tr key={apt.id} className="hover:bg-slate-50 transition">
-                  <td className="px-6 py-4 font-medium text-slate-800">{apt.fullName}</td>
-                  <td className="px-6 py-4 text-slate-600 font-mono text-sm">{apt.phone}</td>
-                  <td className="px-6 py-4">
-                    {apt.source === 'WEBSITE' ? (
-                      <span className="inline-flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-100">
-                        🌐 WEBSITE
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[800px]">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Patient</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Phone</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Source</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Date</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                <tr><td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">Loading...</td></tr>
+              ) : appointments.length === 0 ? (
+                <tr><td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">No appointments found.</td></tr>
+              ) : (
+                appointments.map((apt) => (
+                  <tr key={apt.id} className="hover:bg-slate-50 transition">
+                    <td className="px-6 py-4 font-medium text-slate-800 whitespace-nowrap">{apt.fullName}</td>
+                    <td className="px-6 py-4 text-slate-600 font-mono text-sm whitespace-nowrap">{apt.phone}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {apt.source === 'WEBSITE' ? (
+                        <span className="inline-flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-100">
+                          🌐 WEBSITE
+                        </span>
+                      ) : apt.source === 'ai_chatbot' || apt.isAi ? (
+                        <span className="inline-flex items-center gap-1 text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-100">
+                          <Bot size={12} /> AI AGENT
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Manual</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
+                      {new Date(apt.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusStyle(apt.status)}`}>
+                        {apt.status}
                       </span>
-                    ) : apt.source === 'ai_chatbot' || apt.isAi ? (
-                      <span className="inline-flex items-center gap-1 text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-100">
-                        <Bot size={12} /> AI AGENT
-                      </span>
-                    ) : (
-                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Manual</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-slate-500 text-sm">
-                    {new Date(apt.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusStyle(apt.status)}`}>
-                      {apt.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => setSelectedApt(apt)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition"
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                    </td>
+                    <td className="px-6 py-4 text-right whitespace-nowrap">
+                      <button
+                        onClick={() => setSelectedApt(apt)}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition"
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {selectedApt && (
         <>
           <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setSelectedApt(null)} />
-          <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+          <div className="fixed inset-y-0 right-0 w-full sm:max-w-md bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800">Appointment Details</h2>
               <button onClick={() => setSelectedApt(null)} className="p-2 hover:bg-slate-100 rounded-full">

@@ -126,18 +126,18 @@ const DoctorsPage = () => {
     return (
         <div className="max-w-5xl space-y-8 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800">Doctors</h1>
                     <p className="text-slate-500 text-sm">
                         {activeDoctors.length} active · {inactiveDoctors.length} inactive
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     {!isSuperAdmin && (
-                        <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold shadow-sm">
-                            <ShieldAlert size={16} />
-                            VIEW-ONLY MODE
+                        <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-bold shadow-sm uppercase tracking-wider">
+                            <ShieldAlert size={14} />
+                            VIEW-ONLY
                         </div>
                     )}
                     <button
@@ -196,13 +196,13 @@ const DoctorsPage = () => {
 
             {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-5">
-                        <div className="flex justify-between items-center">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm sm:px-4">
+                    <div className="bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-lg p-6 space-y-5 overflow-y-auto">
+                        <div className="flex justify-between items-center bg-white sticky top-0 pb-2 z-10 border-b border-slate-50 sm:border-none">
                             <h2 className="text-lg font-bold text-slate-800">
                                 {editTarget ? 'Edit Doctor' : 'Add Doctor'}
                             </h2>
-                            <button onClick={closeModal} className="text-slate-400 hover:text-slate-600">
+                            <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 p-2">
                                 <X size={20} />
                             </button>
                         </div>
@@ -258,45 +258,55 @@ const DoctorRow = ({ doc, isSuperAdmin, onEdit, onToggle }: {
     onEdit: () => void;
     onToggle: () => void;
 }) => (
-    <div className={`flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors ${!doc.isActive ? 'opacity-50' : ''}`}>
-        {/* Avatar */}
-        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
-            {doc.image ? (
-                <img src={doc.image} alt={doc.name} className="w-full h-full object-cover" />
-            ) : (
-                <UserRound size={20} className="text-slate-400" />
-            )}
+    <div className={`flex flex-col sm:flex-row sm:items-center gap-4 px-4 sm:px-6 py-5 hover:bg-slate-50 transition-colors ${!doc.isActive ? 'opacity-50' : ''}`}>
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+            {/* Avatar */}
+            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200">
+                {doc.image ? (
+                    <img src={doc.image} alt={doc.name} className="w-full h-full object-cover" />
+                ) : (
+                    <UserRound size={24} className="text-slate-400" />
+                )}
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-800 truncate">{doc.name}</p>
+                <p className="text-xs text-slate-500 truncate">{doc.specialty}</p>
+            </div>
+            
+            <div className="sm:hidden">
+              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${doc.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                {doc.isActive ? 'ACTIVE' : 'INACTIVE'}
+              </span>
+            </div>
         </div>
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-800 truncate">{doc.name}</p>
-            <p className="text-xs text-slate-500 truncate">{doc.specialty}</p>
-        </div>
+        <div className="flex items-center justify-between sm:justify-end gap-4 border-t border-slate-50 pt-3 sm:pt-0 sm:border-none">
+            {/* Status badge - Larger screen only */}
+            <span className={`hidden sm:inline-block text-[10px] font-bold px-2.5 py-1 rounded-full ${doc.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                {doc.isActive ? 'ACTIVE' : 'INACTIVE'}
+            </span>
 
-        {/* Status badge */}
-        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${doc.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-            {doc.isActive ? 'ACTIVE' : 'INACTIVE'}
-        </span>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2 shrink-0">
-            <button
-                onClick={onEdit}
-                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                title="Edit"
-            >
-                <Pencil size={15} />
-            </button>
-            {isSuperAdmin && (
+            {/* Actions */}
+            <div className="flex items-center gap-2 shrink-0 ml-auto">
                 <button
-                    onClick={onToggle}
-                    className={`p-2 rounded-lg transition-colors ${doc.isActive ? 'text-slate-400 hover:text-red-500 hover:bg-red-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
-                    title={doc.isActive ? 'Deactivate' : 'Reactivate'}
+                    onClick={onEdit}
+                    className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-transparent hover:border-blue-100"
+                    title="Edit"
                 >
-                    {doc.isActive ? <PowerOff size={15} /> : <Power size={15} />}
+                    <Pencil size={16} />
                 </button>
-            )}
+                {isSuperAdmin && (
+                    <button
+                        onClick={onToggle}
+                        className={`p-2.5 rounded-xl transition-colors border border-transparent ${doc.isActive ? 'text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-100'}`}
+                        title={doc.isActive ? 'Deactivate' : 'Reactivate'}
+                    >
+                        {doc.isActive ? <PowerOff size={16} /> : <Power size={16} />}
+                    </button>
+                )}
+            </div>
         </div>
     </div>
 );

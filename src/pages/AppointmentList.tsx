@@ -167,8 +167,8 @@ const AppointmentList = () => {
         <button
           onClick={() => setActiveTab('all')}
           className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'all'
-              ? 'bg-white text-slate-800 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
+            ? 'bg-white text-slate-800 shadow-sm'
+            : 'text-slate-500 hover:text-slate-700'
             }`}
         >
           All Bookings
@@ -176,12 +176,12 @@ const AppointmentList = () => {
         <button
           onClick={() => setActiveTab('nour')}
           className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === 'nour'
-              ? 'bg-white text-slate-800 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
+            ? 'bg-white text-slate-800 shadow-sm'
+            : 'text-slate-500 hover:text-slate-700'
             }`}
         >
           <Bot size={14} />
-          WhatsApp Bookings (Nour)
+          AI Bookings (Nour)
         </button>
       </div>
 
@@ -360,8 +360,8 @@ const AppointmentList = () => {
                   </div>
                   {(selectedApt.source === 'WEBSITE' || selectedApt.source === 'ai_chatbot' || selectedApt.isAi) && (
                     <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${selectedApt.source === 'WEBSITE'
-                        ? 'text-blue-600 bg-blue-50 border-blue-200'
-                        : 'text-purple-600 bg-purple-50 border-purple-200'
+                      ? 'text-blue-600 bg-blue-50 border-blue-200'
+                      : 'text-purple-600 bg-purple-50 border-purple-200'
                       }`}>
                       {selectedApt.source === 'WEBSITE' ? '🌐 Website Form' : <><Bot size={14} /> Booked via AI</>}
                     </span>

@@ -221,7 +221,7 @@ const DoctorsPage = () => {
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm sm:px-4" onClick={closeModal}>
-                    <div className="bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-lg p-6 space-y-5 overflow-y-auto" onClick={e => e.stopPropagation()}>
+                    <div className="bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-lg sm:max-h-[90vh] p-6 space-y-5 overflow-y-auto">
                         <div className="flex justify-between items-center bg-white sticky top-0 pb-2 z-10 border-b border-slate-50 sm:border-none">
                             <h2 className="text-lg font-bold text-slate-800">
                                 {editTarget ? 'Edit Doctor' : 'Add Doctor'}

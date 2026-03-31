@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { UserRound, Plus, Pencil, PowerOff, Power, Loader2, X, ShieldAlert } from 'lucide-react';
+import { UserRound, Plus, Pencil, PowerOff, Power, Loader2, X, ShieldAlert, Trash2 } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../hooks/useAuth';
 
@@ -11,6 +11,10 @@ interface Doctor {
     bio: string | null;
     isActive: boolean;
     createdAt: string;
+    slug: string | null;
+    location: string | null;
+    languages: string[];
+    order: number;
 }
 
 interface FormState {
@@ -18,9 +22,11 @@ interface FormState {
     specialty: string;
     image: string;
     bio: string;
+    location: string;
+    languages: string[];
+    order: number;
 }
-
-const emptyForm: FormState = { name: '', specialty: '', image: '', bio: '' };
+const emptyForm: FormState = { name: '', specialty: '', image: '', bio: '', location: '', languages: [], order: 0 };
 
 const DoctorsPage = () => {
     const { admin } = useAuth();
@@ -58,11 +64,14 @@ const DoctorsPage = () => {
 
     const openEdit = (doc: Doctor) => {
         setEditTarget(doc);
-        setForm({
+    setForm({
             name: doc.name,
             specialty: doc.specialty,
             image: doc.image ?? '',
             bio: doc.bio ?? '',
+            location: doc.location ?? '',
+            languages: doc.languages ?? [],
+            order: doc.order ?? 0,
         });
         setError('');
         setShowModal(true);
@@ -83,11 +92,14 @@ const DoctorsPage = () => {
         try {
             setSaving(true);
             setError('');
-            const payload = {
+           const payload = {
                 name: form.name.trim(),
                 specialty: form.specialty.trim(),
                 image: form.image.trim() || null,
                 bio: form.bio.trim() || null,
+                location: form.location || null,
+                languages: form.languages,
+                order: form.order,
             };
             if (editTarget) {
                 await api.patch(`/admin/doctors/${editTarget.id}`, payload);
@@ -110,6 +122,17 @@ const DoctorsPage = () => {
             await fetchDoctors();
         } catch {
             alert('Failed to update doctor status.');
+        }
+    };
+
+   const handlePermanentDelete = async (doc: Doctor) => {
+        if (!isSuperAdmin) return;
+        if (!confirm(`Permanently delete ${doc.name}? This cannot be undone.`)) return;
+        try {
+            await api.delete(`/admin/doctors/${doc.id}/permanent`);
+            await fetchDoctors();
+        } catch {
+            alert('Failed to permanently delete doctor.');
         }
     };
 
@@ -166,7 +189,8 @@ const DoctorsPage = () => {
                                 doc={doc}
                                 isSuperAdmin={isSuperAdmin}
                                 onEdit={() => openEdit(doc)}
-                                onToggle={() => handleToggleActive(doc)}
+                               onToggle={() => handleToggleActive(doc)}
+                                onPermanentDelete={() => handlePermanentDelete(doc)}
                             />
                         ))}
                     </div>
@@ -187,13 +211,13 @@ const DoctorsPage = () => {
                                 doc={doc}
                                 isSuperAdmin={isSuperAdmin}
                                 onEdit={() => openEdit(doc)}
-                                onToggle={() => handleToggleActive(doc)}
+                               onToggle={() => handleToggleActive(doc)}
+                                onPermanentDelete={() => handlePermanentDelete(doc)}
                             />
                         ))}
                     </div>
                 </div>
             )}
-
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm sm:px-4">
@@ -229,6 +253,54 @@ const DoctorsPage = () => {
                             </div>
                         </div>
 
+                       <div>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</label>
+                                <select
+                                    value={form.location}
+                                    onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
+                                    className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">— Select location —</option>
+                                    <option value="Salmiya">Salmiya</option>
+                                    <option value="Sabah Al-Salem">Sabah Al-Salem</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Languages</label>
+                                <div className="mt-2 flex gap-4">
+                                    {['Arabic', 'English', 'French'].map(lang => (
+                                        <label key={lang} className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={form.languages.includes(lang)}
+                                                onChange={e => {
+                                                    if (e.target.checked) {
+                                                        setForm(f => ({ ...f, languages: [...f.languages, lang] }));
+                                                    } else {
+                                                        setForm(f => ({ ...f, languages: f.languages.filter(l => l !== lang) }));
+                                                    }
+                                                }}
+                                                className="rounded"
+                                            />
+                                            {lang}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Display Order</label>
+                                <input
+                                    type="number"
+                                    value={form.order}
+                                    onChange={e => setForm(f => ({ ...f, order: parseInt(e.target.value) || 0 }))}
+                                    className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    min={0}
+                                />
+                            </div>
+                        </div>
+
                         <div className="flex gap-3 pt-2">
                             <button
                                 onClick={closeModal}
@@ -252,11 +324,12 @@ const DoctorsPage = () => {
     );
 };
 
-const DoctorRow = ({ doc, isSuperAdmin, onEdit, onToggle }: {
+const DoctorRow = ({ doc, isSuperAdmin, onEdit, onToggle, onPermanentDelete }: {
     doc: Doctor;
     isSuperAdmin: boolean;
     onEdit: () => void;
     onToggle: () => void;
+    onPermanentDelete: () => void;
 }) => (
     <div className={`flex flex-col sm:flex-row sm:items-center gap-4 px-4 sm:px-6 py-5 hover:bg-slate-50 transition-colors ${!doc.isActive ? 'opacity-50' : ''}`}>
         <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -297,13 +370,22 @@ const DoctorRow = ({ doc, isSuperAdmin, onEdit, onToggle }: {
                 >
                     <Pencil size={16} />
                 </button>
-                {isSuperAdmin && (
+               {isSuperAdmin && (
                     <button
                         onClick={onToggle}
                         className={`p-2.5 rounded-xl transition-colors border border-transparent ${doc.isActive ? 'text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-100'}`}
                         title={doc.isActive ? 'Deactivate' : 'Reactivate'}
                     >
                         {doc.isActive ? <PowerOff size={16} /> : <Power size={16} />}
+                    </button>
+                )}
+                {isSuperAdmin && (
+                    <button
+                        onClick={onPermanentDelete}
+                        className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-transparent hover:border-red-100"
+                        title="Permanent Delete"
+                    >
+                        <Trash2 size={16} />
                     </button>
                 )}
             </div>

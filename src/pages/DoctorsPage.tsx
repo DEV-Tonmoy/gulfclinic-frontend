@@ -221,8 +221,8 @@ const DoctorsPage = () => {
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm sm:px-4" onClick={closeModal}>
-                    <div className="bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-lg sm:max-h-[90vh] p-6 space-y-5 overflow-y-auto">
-                        <div className="flex justify-between items-center bg-white sticky top-0 pb-2 z-10 border-b border-slate-50 sm:border-none">
+                    <div className="bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-lg sm:max-h-[90vh] flex flex-col">
+                        <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 flex-shrink-0">
                             <h2 className="text-lg font-bold text-slate-800">
                                 {editTarget ? 'Edit Doctor' : 'Add Doctor'}
                             </h2>
@@ -231,79 +231,81 @@ const DoctorsPage = () => {
                             </button>
                         </div>
 
-                        {error && (
-                            <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
-                                {error}
-                            </div>
-                        )}
-
-                        <div className="space-y-4">
-                            <Field label="Full Name *" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} placeholder="Dr. Ahmed Al-Rashidi" />
-                            <Field label="Specialty *" value={form.specialty} onChange={v => setForm(f => ({ ...f, specialty: v }))} placeholder="Orthodontics" />
-                            <Field label="Image URL" value={form.image} onChange={v => setForm(f => ({ ...f, image: v }))} placeholder="https://..." />
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bio</label>
-                                <textarea
-                                    rows={3}
-                                    value={form.bio}
-                                    onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
-                                    placeholder="Brief professional background..."
-                                    className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</label>
-                                <select
-                                    value={form.location}
-                                    onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
-                                    className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="">— Select location —</option>
-                                    <option value="Salmiya">Salmiya</option>
-                                    <option value="Sabah Al-Salem">Sabah Al-Salem</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Languages</label>
-                                <div className="mt-2 flex gap-4">
-                                    {['Arabic', 'English', 'French'].map(lang => (
-                                        <label key={lang} className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={form.languages.includes(lang)}
-                                                onChange={e => {
-                                                    if (e.target.checked) {
-                                                        setForm(f => ({ ...f, languages: [...f.languages, lang] }));
-                                                    } else {
-                                                        setForm(f => ({ ...f, languages: f.languages.filter(l => l !== lang) }));
-                                                    }
-                                                }}
-                                                className="rounded"
-                                            />
-                                            {lang}
-                                        </label>
-                                    ))}
+                        <div className="flex-grow overflow-y-auto px-6 py-5 space-y-5">
+                            {error && (
+                                <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl sticky top-0 z-10">
+                                    {error}
                                 </div>
-                            </div>
+                            )}
 
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Display Order</label>
-                                <input
-                                    type="number"
-                                    value={form.order}
-                                    onChange={e => setForm(f => ({ ...f, order: parseInt(e.target.value) || 0 }))}
-                                    className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    min={0}
-                                />
+                            <div className="space-y-4">
+                                <Field label="Full Name *" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} placeholder="Dr. Ahmed Al-Rashidi" />
+                                <Field label="Specialty *" value={form.specialty} onChange={v => setForm(f => ({ ...f, specialty: v }))} placeholder="Orthodontics" />
+                                <Field label="Image URL" value={form.image} onChange={v => setForm(f => ({ ...f, image: v }))} placeholder="https://..." />
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bio</label>
+                                    <textarea
+                                        rows={3}
+                                        value={form.bio}
+                                        onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
+                                        placeholder="Brief professional background..."
+                                        className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</label>
+                                    <select
+                                        value={form.location}
+                                        onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
+                                        className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">— Select location —</option>
+                                        <option value="Salmiya">Salmiya</option>
+                                        <option value="Sabah Al-Salem">Sabah Al-Salem</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Languages</label>
+                                    <div className="mt-2 flex gap-4">
+                                        {['Arabic', 'English', 'French'].map(lang => (
+                                            <label key={lang} className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={form.languages.includes(lang)}
+                                                    onChange={e => {
+                                                        if (e.target.checked) {
+                                                            setForm(f => ({ ...f, languages: [...f.languages, lang] }));
+                                                        } else {
+                                                            setForm(f => ({ ...f, languages: f.languages.filter(l => l !== lang) }));
+                                                        }
+                                                    }}
+                                                    className="rounded"
+                                                />
+                                                {lang}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Display Order</label>
+                                    <input
+                                        type="number"
+                                        value={form.order}
+                                        onChange={e => setForm(f => ({ ...f, order: parseInt(e.target.value) || 0 }))}
+                                        className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        min={0}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex gap-3 pt-2">
+                        <div className="border-t border-slate-100 px-6 py-4 flex gap-3 flex-shrink-0 bg-slate-50/30">
                             <button
                                 onClick={closeModal}
-                                className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 transition-colors"
+                                className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:bg-white transition-colors"
                             >
                                 Cancel
                             </button>

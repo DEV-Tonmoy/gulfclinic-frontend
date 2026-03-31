@@ -339,6 +339,7 @@ const DoctorsPage = () => {
                                                     <option value="">Select location</option>
                                                     <option value="Salmiya">Salmiya</option>
                                                     <option value="Sabah Al-Salem">Sabah Al-Salem</option>
+                                                    <option value="Both Branches">Both Branches</option>
                                                 </select>
                                             </div>
 
@@ -363,7 +364,7 @@ const DoctorsPage = () => {
                                         Languages
                                     </label>
                                     <div className="flex flex-wrap gap-3">
-                                        {['Arabic', 'English', 'French'].map(lang => (
+                                        {['Arabic', 'English', 'French', 'Hindi'].map(lang => (
                                             <label key={lang} className="flex items-center gap-3 px-4 py-2 border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer group">
                                                 <input
                                                     type="checkbox"

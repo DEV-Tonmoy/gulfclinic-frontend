@@ -64,7 +64,7 @@ const DoctorsPage = () => {
 
     const openEdit = (doc: Doctor) => {
         setEditTarget(doc);
-    setForm({
+        setForm({
             name: doc.name,
             specialty: doc.specialty,
             image: doc.image ?? '',
@@ -92,7 +92,7 @@ const DoctorsPage = () => {
         try {
             setSaving(true);
             setError('');
-           const payload = {
+            const payload = {
                 name: form.name.trim(),
                 specialty: form.specialty.trim(),
                 image: form.image.trim() || null,
@@ -125,7 +125,7 @@ const DoctorsPage = () => {
         }
     };
 
-   const handlePermanentDelete = async (doc: Doctor) => {
+    const handlePermanentDelete = async (doc: Doctor) => {
         if (!isSuperAdmin) return;
         if (!confirm(`Permanently delete ${doc.name}? This cannot be undone.`)) return;
         try {
@@ -189,7 +189,7 @@ const DoctorsPage = () => {
                                 doc={doc}
                                 isSuperAdmin={isSuperAdmin}
                                 onEdit={() => openEdit(doc)}
-                               onToggle={() => handleToggleActive(doc)}
+                                onToggle={() => handleToggleActive(doc)}
                                 onPermanentDelete={() => handlePermanentDelete(doc)}
                             />
                         ))}
@@ -211,7 +211,7 @@ const DoctorsPage = () => {
                                 doc={doc}
                                 isSuperAdmin={isSuperAdmin}
                                 onEdit={() => openEdit(doc)}
-                               onToggle={() => handleToggleActive(doc)}
+                                onToggle={() => handleToggleActive(doc)}
                                 onPermanentDelete={() => handlePermanentDelete(doc)}
                             />
                         ))}
@@ -220,8 +220,8 @@ const DoctorsPage = () => {
             )}
             {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm sm:px-4">
-                    <div className="bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-lg p-6 space-y-5 overflow-y-auto">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm sm:px-4" onClick={closeModal}>
+                    <div className="bg-white sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-lg p-6 space-y-5 overflow-y-auto" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center bg-white sticky top-0 pb-2 z-10 border-b border-slate-50 sm:border-none">
                             <h2 className="text-lg font-bold text-slate-800">
                                 {editTarget ? 'Edit Doctor' : 'Add Doctor'}
@@ -250,7 +250,7 @@ const DoctorsPage = () => {
                                     placeholder="Brief professional background..."
                                     className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 />
-                           </div>
+                            </div>
 
                             <div>
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</label>
@@ -346,11 +346,11 @@ const DoctorRow = ({ doc, isSuperAdmin, onEdit, onToggle, onPermanentDelete }: {
                 <p className="text-sm font-bold text-slate-800 truncate">{doc.name}</p>
                 <p className="text-xs text-slate-500 truncate">{doc.specialty}</p>
             </div>
-            
+
             <div className="sm:hidden">
-              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${doc.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
-                {doc.isActive ? 'ACTIVE' : 'INACTIVE'}
-              </span>
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${doc.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                    {doc.isActive ? 'ACTIVE' : 'INACTIVE'}
+                </span>
             </div>
         </div>
 
@@ -369,7 +369,7 @@ const DoctorRow = ({ doc, isSuperAdmin, onEdit, onToggle, onPermanentDelete }: {
                 >
                     <Pencil size={16} />
                 </button>
-               {isSuperAdmin && (
+                {isSuperAdmin && (
                     <button
                         onClick={onToggle}
                         className={`p-2.5 rounded-xl transition-colors border border-transparent ${doc.isActive ? 'text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-100'}`}

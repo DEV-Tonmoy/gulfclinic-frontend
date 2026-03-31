@@ -250,10 +250,9 @@ const DoctorsPage = () => {
                                     placeholder="Brief professional background..."
                                     className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 />
-                            </div>
-                        </div>
+                           </div>
 
-                       <div>
+                            <div>
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</label>
                                 <select
                                     value={form.location}

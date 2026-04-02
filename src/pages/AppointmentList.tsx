@@ -42,11 +42,7 @@ const AppointmentList = () => {
   const [selectedApt, setSelectedApt] = useState<Appointment | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // New state
-  const [activeTab, setActiveTab] = useState<TabType>('all');
-  const [aiAppointments, setAiAppointments] = useState<AiAppointment[]>([]);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
+
 
   const isSuperAdmin = admin?.role?.toString().toUpperCase() === 'SUPER_ADMIN';
 
@@ -71,27 +67,6 @@ const AppointmentList = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // --- New fetch: Nour bookings ---
-  const fetchAiAppointments = async () => {
-    try {
-      setAiLoading(true);
-      setAiError(null);
-      const response = await api.get('/admin/ai-bookings');
-      if (response.data?.data) {
-        setAiAppointments(response.data.data);
-      }
-    } catch (error) {
-      setAiError('Failed to load WhatsApp bookings. Try again.');
-    } finally {
-      setAiLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'nour') {
-      fetchAiAppointments();
-    }
-  }, [activeTab]);
 
   // --- Existing handlers (unchanged) ---
   const handleUpdateStatus = async (newStatus: Appointment['status']) => {
@@ -148,196 +123,78 @@ const AppointmentList = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-slate-800">Appointment Requests</h1>
-        {activeTab === 'all' && (
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search patients..."
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        )}
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search patients..."
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
-      {/* Tab Bar */}
-      <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit">
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'all'
-            ? 'bg-white text-slate-800 shadow-sm'
-            : 'text-slate-500 hover:text-slate-700'
-            }`}
-        >
-          All Bookings
-        </button>
-        <button
-          onClick={() => setActiveTab('nour')}
-          className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === 'nour'
-            ? 'bg-white text-slate-800 shadow-sm'
-            : 'text-slate-500 hover:text-slate-700'
-            }`}
-        >
-          <Bot size={14} />
-          AI Bookings (Nour)
-        </button>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[800px]">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Patient</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Phone</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Source</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Date</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-600 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                <tr><td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">Loading...</td></tr>
+              ) : appointments.length === 0 ? (
+                <tr><td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">No appointments found.</td></tr>
+              ) : (
+                appointments.map((apt) => (
+                  <tr key={apt.id} className="hover:bg-slate-50 transition">
+                    <td className="px-6 py-4 font-medium text-slate-800 whitespace-nowrap">{apt.fullName}</td>
+                    <td className="px-6 py-4 text-slate-600 font-mono text-sm whitespace-nowrap">{apt.phone}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {apt.source === 'WEBSITE' ? (
+                        <span className="inline-flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-100">
+                          🌐 WEBSITE
+                        </span>
+                      ) : apt.source === 'ai_chatbot' || apt.isAi ? (
+                        <span className="inline-flex items-center gap-1 text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-100">
+                          <Bot size={12} /> AI AGENT
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Manual</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
+                      {new Date(apt.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusStyle(apt.status)}`}>
+                        {apt.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right whitespace-nowrap">
+                      <button
+                        onClick={() => setSelectedApt(apt)}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition"
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* ── TAB: ALL BOOKINGS (existing, unchanged) ── */}
-      {activeTab === 'all' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left min-w-[800px]">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Patient</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Phone</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Source</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Date</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {loading ? (
-                  <tr><td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">Loading...</td></tr>
-                ) : appointments.length === 0 ? (
-                  <tr><td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">No appointments found.</td></tr>
-                ) : (
-                  appointments.map((apt) => (
-                    <tr key={apt.id} className="hover:bg-slate-50 transition">
-                      <td className="px-6 py-4 font-medium text-slate-800 whitespace-nowrap">{apt.fullName}</td>
-                      <td className="px-6 py-4 text-slate-600 font-mono text-sm whitespace-nowrap">{apt.phone}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {apt.source === 'WEBSITE' ? (
-                          <span className="inline-flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-100">
-                            🌐 WEBSITE
-                          </span>
-                        ) : apt.source === 'ai_chatbot' || apt.isAi ? (
-                          <span className="inline-flex items-center gap-1 text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-100">
-                            <Bot size={12} /> AI AGENT
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Manual</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
-                        {new Date(apt.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusStyle(apt.status)}`}>
-                          {apt.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <button
-                          onClick={() => setSelectedApt(apt)}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition"
-                        >
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB: WHATSAPP BOOKINGS (Nour) ── */}
-      {activeTab === 'nour' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bot size={16} className="text-green-600" />
-              <span className="text-sm font-semibold text-slate-700">Bookings received via Nour AI on WhatsApp</span>
-            </div>
-            <button
-              onClick={fetchAiAppointments}
-              disabled={aiLoading}
-              className="text-xs text-blue-600 hover:text-blue-800 font-semibold transition disabled:opacity-40"
-            >
-              {aiLoading ? 'Refreshing...' : '↻ Refresh'}
-            </button>
-          </div>
-
-          {aiError && (
-            <div className="px-6 py-4 text-sm text-red-600 bg-red-50 border-b border-red-100">
-              {aiError}
-            </div>
-          )}
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left min-w-[900px]">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Patient</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Phone</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Email</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Service</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Preferred Date</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Branch</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Doctor</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-600">Booked On</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {aiLoading ? (
-                  <tr><td colSpan={9} className="px-6 py-10 text-center text-slate-400 text-sm">Loading WhatsApp bookings...</td></tr>
-                ) : aiAppointments.length === 0 ? (
-                  <tr><td colSpan={9} className="px-6 py-10 text-center text-slate-400 text-sm">No WhatsApp bookings yet.</td></tr>
-                ) : (
-                  aiAppointments.map((apt) => (
-                    <tr key={apt.id} className="hover:bg-slate-50 transition">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 px-2 py-0.5 rounded text-[10px] font-bold border border-green-100">
-                            📱 WHATSAPP
-                          </span>
-                          <span className="font-medium text-slate-800">{apt.patient_name ?? '—'}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 font-mono text-sm whitespace-nowrap">
-                        {apt.patient_phone ?? '—'}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 text-sm whitespace-nowrap">
-                        {apt.patient_email ?? <span className="text-slate-300">—</span>}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 text-sm whitespace-nowrap">
-                        {apt.service_requested ?? '—'}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
-                        {apt.preferred_date
-                          ? new Date(apt.preferred_date).toLocaleDateString()
-                          : '—'}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 text-sm whitespace-nowrap capitalize">
-                        {apt.branch ?? '—'}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 text-sm whitespace-nowrap">
-                        {apt.doctor_assigned ?? '—'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold border capitalize ${getNourStatusStyle(apt.status)}`}>
-                          {apt.status ?? 'unknown'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
-                        {new Date(apt.created_at).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       {/* ── DETAIL PANEL (existing, unchanged) ── */}
       {selectedApt && (

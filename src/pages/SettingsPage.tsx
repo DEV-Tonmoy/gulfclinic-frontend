@@ -21,7 +21,6 @@ const SettingsPage = () => {
     const fetchSettings = async () => {
       try {
         const response = await api.get('/admin/settings');
-        // Check for common response structures
         if (response.data && response.data.success) {
           setSettings(response.data.data || response.data.settings || settings);
         }
@@ -38,12 +37,9 @@ const SettingsPage = () => {
     if (!isSuperAdmin) return;
     try {
       setSaving(true);
-      // Optimistic update for UI snappiness
       setSettings(prev => ({ ...prev, [field]: value }));
-      
       const { data } = await api.patch('/admin/settings', { [field]: value });
       if (!data.success) {
-        // Rollback if server fails
         setSettings(prev => ({ ...prev, [field]: !value }));
         alert("Server failed to update setting.");
       }
@@ -56,97 +52,67 @@ const SettingsPage = () => {
   };
 
   if (loading) return (
-    <div className="p-8 flex items-center gap-3 text-slate-400 font-medium h-full justify-center">
-      <Loader2 className="animate-spin text-blue-600" /> 
+    <div className="p-8 flex items-center gap-3 text-[#8A8A8A] font-medium h-full justify-center">
+      <Loader2 className="animate-spin text-[#126209]" />
       <span>Loading configuration...</span>
     </div>
   );
 
   return (
-    <div className="max-w-5xl space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-5xl space-y-8 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Clinic Configuration</h1>
-          <p className="text-slate-500 text-sm">Manage your AI automation and integration settings.</p>
+          <h1 className="heading-lg">Clinic Configuration</h1>
+          <p className="text-body mt-1">Manage your AI automation and integration settings.</p>
         </div>
         {!isSuperAdmin && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-bold shadow-sm uppercase tracking-wider">
-            <ShieldAlert size={14} />
-            VIEW-ONLY
+          <div className="pill-pending flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em]">
+            <ShieldAlert size={14} /> VIEW-ONLY
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Automation Toggles */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-            <h2 className="font-bold text-slate-700 flex items-center gap-2 border-b border-slate-100 pb-4">
-              <Bot size={20} className="text-blue-600" /> 
-              Automation & Features
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Toggles */}
+        <div className="lg:col-span-2">
+          <div className="card-surface p-5 space-y-5">
+            <h2 className="font-semibold text-[#F0EDE8] flex items-center gap-2 border-b border-[#2A2A2A] pb-4 text-sm tracking-heading">
+              <Bot size={18} className="text-[#126209]" /> Automation & Features
             </h2>
-            
-            <div className="grid gap-4">
-              <ToggleItem 
-                icon={<Bot size={18} />}
-                label="AI Appointment Agent" 
-                desc="AI will chat with patients and book slots automatically." 
-                active={settings?.aiEnabled ?? false} 
-                onToggle={() => handleToggle('aiEnabled', !settings.aiEnabled)}
-                disabled={!isSuperAdmin || saving}
-                color="purple"
-              />
-              <ToggleItem 
-                icon={<Mail size={18} />}
-                label="Email Notifications" 
-                desc="Send instant booking confirmations to patients." 
-                active={settings?.emailEnabled ?? false} 
-                onToggle={() => handleToggle('emailEnabled', !settings.emailEnabled)}
-                disabled={!isSuperAdmin || saving}
-                color="blue"
-              />
-              <ToggleItem 
-                icon={<Table size={18} />}
-                label="Google Sheets Sync" 
-                desc="Export all new leads to your clinic spreadsheet." 
-                active={settings?.sheetsEnabled ?? false} 
-                onToggle={() => handleToggle('sheetsEnabled', !settings.sheetsEnabled)}
-                disabled={!isSuperAdmin || saving}
-                color="emerald"
-              />
+            <div className="grid gap-3">
+              <ToggleRow icon={<Bot size={16}/>} label="AI Appointment Agent" desc="AI will chat with patients and book slots automatically."
+                active={settings.aiEnabled} onToggle={() => handleToggle('aiEnabled', !settings.aiEnabled)} disabled={!isSuperAdmin||saving} color="purple"/>
+              <ToggleRow icon={<Mail size={16}/>} label="Email Notifications" desc="Send instant booking confirmations to patients."
+                active={settings.emailEnabled} onToggle={() => handleToggle('emailEnabled', !settings.emailEnabled)} disabled={!isSuperAdmin||saving} color="blue"/>
+              <ToggleRow icon={<Table size={16}/>} label="Google Sheets Sync" desc="Export all new leads to your clinic spreadsheet."
+                active={settings.sheetsEnabled} onToggle={() => handleToggle('sheetsEnabled', !settings.sheetsEnabled)} disabled={!isSuperAdmin||saving} color="green"/>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Identity & Contact */}
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-            <h2 className="font-bold text-slate-700 flex items-center gap-2 border-b border-slate-100 pb-4">
-              <Globe size={20} className="text-blue-600" />
-              Clinic Identity
+        {/* Right: Identity */}
+        <div>
+          <div className="card-surface p-5 space-y-5">
+            <h2 className="font-semibold text-[#F0EDE8] flex items-center gap-2 border-b border-[#2A2A2A] pb-4 text-sm tracking-heading">
+              <Globe size={18} className="text-[#B5810A]" /> Clinic Identity
             </h2>
-            
             <div className="space-y-4">
               <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Clinic Name</label>
-                <div className="mt-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-semibold">
-                  {settings?.clinicName || 'Gulf Clinic'}
+                <label className="label-caps text-[10px]">Clinic Name</label>
+                <div className="mt-1.5 p-2.5 bg-[#1C1C1C] border border-[#2A2A2A] rounded-lg text-[#F0EDE8] font-medium text-sm">
+                  {settings.clinicName || 'Gulf Clinic'}
                 </div>
               </div>
-
               <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">WhatsApp Business</label>
-                <div className="mt-1 flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-mono text-sm">
-                  <MessageSquare size={16} className="text-emerald-500" />
-                  {settings?.whatsappNumber || 'Not Configured'}
+                <label className="label-caps text-[10px]">WhatsApp Business</label>
+                <div className="mt-1.5 flex items-center gap-2.5 p-2.5 bg-[#1C1C1C] border border-[#2A2A2A] rounded-lg text-[#8A8A8A] font-mono text-sm">
+                  <MessageSquare size={15} className="text-[#2ECC71] shrink-0" />
+                  {settings.whatsappNumber || 'Not Configured'}
                 </div>
               </div>
-
-              <div className="pt-2">
-                <p className="text-[10px] text-slate-400 italic leading-relaxed">
-                  * Branding and WhatsApp numbers are locked. Contact support to modify core business identifiers.
-                </p>
-              </div>
+              <p className="text-[10px] text-[#555555] italic leading-relaxed pt-1">
+                * Branding and WhatsApp numbers are locked. Contact support to modify core business identifiers.
+              </p>
             </div>
           </div>
         </div>
@@ -155,31 +121,21 @@ const SettingsPage = () => {
   );
 };
 
-const ToggleItem = ({ icon, label, desc, active, onToggle, disabled, color }: any) => {
-  const colorMap: any = {
-    purple: 'bg-purple-100 text-purple-600',
-    blue: 'bg-blue-100 text-blue-600',
-    emerald: 'bg-emerald-100 text-emerald-600',
-  };
-
+const ToggleRow = ({ icon, label, desc, active, onToggle, disabled, color }: any) => {
+  const cm: any = { purple:'bg-purple-500/15 text-purple-400', blue:'bg-[#3498DB]/15 text-[#3498DB]', green:'bg-[#126209]/15 text-[#4ADE80]' };
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-slate-50/50 border border-slate-100 transition-all hover:border-slate-200 gap-4">
-      <div className="flex items-center gap-4">
-        <div className={`p-2.5 rounded-lg shrink-0 ${colorMap[color] || 'bg-slate-200'}`}>
-          {icon}
-        </div>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg bg-[#1C1C1C]/50 border border-[#2A2A2A] hover:border-[#3A3A3A] transition-colors duration-200 gap-3">
+      <div className="flex items-center gap-3">
+        <div className={`p-2 rounded-lg shrink-0 ${cm[color]||'bg-[#1C1C1C] text-[#8A8A8A]'}`}>{icon}</div>
         <div>
-          <p className="text-sm font-bold text-slate-800">{label}</p>
-          <p className="text-xs text-slate-500">{desc}</p>
+          <p className="text-sm font-medium text-[#F0EDE8]">{label}</p>
+          <p className="text-xs text-[#8A8A8A] mt-0.5">{desc}</p>
         </div>
       </div>
       <div className="flex justify-end sm:block">
-        <button 
-          onClick={onToggle}
-          disabled={disabled}
-          className={`w-12 h-6 rounded-full transition-all relative ${active ? 'bg-blue-600' : 'bg-slate-300'} ${disabled && 'opacity-50 cursor-not-allowed'}`}
-        >
-          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${active ? 'left-7' : 'left-1'}`} />
+        <button onClick={onToggle} disabled={disabled}
+          className={`toggle-track ${active?'bg-[#126209] shadow-[0_0_10px_rgba(18,98,9,0.3)]':'bg-[#3A3A3A]'} ${disabled&&'opacity-40 cursor-not-allowed'}`}>
+          <div className={`toggle-thumb ${active?'left-[22px]':'left-1'}`}/>
         </button>
       </div>
     </div>

@@ -37,32 +37,38 @@ navigate('/dashboard');
 };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+    <div className="min-h-screen bg-obsidian-base flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Subtle background glow effect */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gulf-green/5 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[300px] bg-gulf-gold/5 rounded-full blur-[100px]"></div>
+      </div>
+
+      <div className="relative max-w-md w-full bg-obsidian-surface rounded-2xl shadow-elevated-lg p-8 border border-obsidian-border-subtle animate-fade-in">
         
         <div className="text-center mb-8">
-          <div className="bg-blue-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="bg-gulf-green w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-glow-green">
             <Stethoscope className="text-white" size={28} />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Gulf Clinic Admin</h1>
-          <p className="text-slate-500 text-sm mt-1">Please sign in to manage appointments</p>
+          <h1 className="text-2xl font-semibold tracking-heading text-text-primary">Gulf Clinic Admin</h1>
+          <p className="text-text-muted text-sm mt-1">Please sign in to manage appointments</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-600 text-xs font-bold rounded-lg">
+          <div className="mb-6 p-3 bg-status-destructive/10 border border-status-destructive/20 text-status-destructive text-xs font-semibold rounded-xl">
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Email Address</label>
+            <label className="label-caps block mb-1.5 ml-1">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-placeholder" size={18} />
               <input
                 type="email"
                 required
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition bg-slate-50/50 text-slate-900"
+                className="input-field pl-10"
                 placeholder="admin@clinic.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -71,13 +77,13 @@ navigate('/dashboard');
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Password</label>
+            <label className="label-caps block mb-1.5 ml-1">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-text-placeholder" size={18} />
               <input
                 type="password"
                 required
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition bg-slate-50/50 text-slate-900"
+                className="input-field pl-10"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -88,11 +94,18 @@ navigate('/dashboard');
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 shadow-lg mt-2"
+            className="w-full btn-primary min-h-[44px] py-3 flex items-center justify-center gap-2 disabled:opacity-60 mt-2 text-sm"
           >
             {loading ? <Loader2 className="animate-spin" size={20} /> : 'Sign In'}
           </button>
         </form>
+
+        {/* Bottom accent line */}
+        <div className="mt-8 flex items-center justify-center gap-2">
+          <div className="h-px flex-1 bg-obsidian-border-subtle"></div>
+          <span className="text-[10px] text-text-placeholder uppercase tracking-caps font-medium">ClinicOS Gulf</span>
+          <div className="h-px flex-1 bg-obsidian-border-subtle"></div>
+        </div>
       </div>
     </div>
   );
